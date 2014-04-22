@@ -13,7 +13,7 @@ Fractals in Python
 ==================
 
 Repository with Python code that renders fractals, compatible with both Python
-2.7 and 3.2+.
+2.7 and 3.2+, showing and saving files with Matplotlib.
 
 For more information about the maths used for fractals (as well as its
 history), see the Wikipedia pages about the
@@ -25,19 +25,42 @@ history), see the Wikipedia pages about the
 
 Examples
 --------
-{% for fname in sorted(listdir("images"))
-%}{% with cmap, width, height, depth, c = re_julia.match(fname).groups() %}
-Julia Fractal for constant ``{{c}}`` and depth ``{{depth}}``, with
-{{width}}x{{height}} pixels (Colormap: {{cmap}})
 
-.. image:: images/{{fname}}
+Examples below can also be done with a ``--output fractal.png`` parameter,
+which saves the example to a image file, while ``--show`` just shows the
+raster fractal image on the screen (both parameters can be used together).
+
+{% for fname in sorted(listdir("images"))
+%}{% with command = get_parameters(fname) %}
+#. {{fname.split("_")[0].capitalize()}} fractal
+
+   ::
+
+     $ python fractals.py {{command}} --show
+
+   .. image:: images/{{fname}}
 {% endwith %}{% endfor %}
+----
+
+By Danilo J. S. Bellini
 """
+
+re_complex = re.compile("(?:([+-]?\s*[0-9.]+))?\s*"
+                        "(?:([+-]\s*[0-9.]+)\s*)?(.*)")
+
+def get_parameters(fname):
+  def part_generator():
+    for part in fname.rsplit(".", 1)[0].split("_"):
+      if "=" in part:
+        yield "--" + part
+      else:
+        yield " ".join(filter(lambda x: x, re_complex.match(part).groups()))
+  return " ".join(part_generator())
 
 template_globals = {
   "listdir": os.listdir,
   "sorted": sorted,
-  "re_julia": re.compile("julia_(.*?)_(.*?)x(.*?)_d=(.*?)_c=\(?(.*?)\)?.png"),
+  "get_parameters": get_parameters,
 }
 
 env = jinja2.Environment(extensions=["jinja2.ext.with_"])
