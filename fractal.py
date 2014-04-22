@@ -72,6 +72,16 @@ def img2output(img, cmap=DEFAULT_COLORMAP, output=None, show=False):
     pylab.show()
 
 
+def exec_command(kwargs):
+  """ Fractal command from a dictionary of keyword arguments (from CLI) """
+  keys_gf = inspect.getargspec(generate_fractal).args
+  kwargs_gf = {k: v for k, v in kwargs.items() if k in keys_gf}
+  img = generate_fractal(**kwargs_gf)
+  keys_i2o = inspect.getargspec(img2output).args
+  kwargs_i2o = {k: v for k, v in kwargs.items() if k in keys_i2o}
+  img2output(img, **kwargs_i2o)
+
+
 if __name__ == "__main__":
   # CLI interface description
   parser = argparse.ArgumentParser(
@@ -127,9 +137,4 @@ if __name__ == "__main__":
       parser.error(exc)
 
   # Execute the given command
-  keys_gf = inspect.getargspec(generate_fractal).args
-  kwargs_gf = {k: v for k, v in vars(args).items() if k in keys_gf}
-  img = generate_fractal(**kwargs_gf)
-  keys_i2o = inspect.getargspec(img2output).args
-  kwargs_i2o = {k: v for k, v in vars(args).items() if k in keys_i2o}
-  img2output(img, **kwargs_i2o)
+  exec_command(vars(args))
