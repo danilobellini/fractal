@@ -25,21 +25,37 @@ history), see the Wikipedia pages about the
 
 Examples
 --------
-
-Examples below can also be done with a ``--output fractal.png`` parameter,
-which saves the example to a image file, while ``--show`` just shows the
-raster fractal image on the screen (both parameters can be used together).
-
 {% for fname in sorted(listdir("images"))
 %}{% with command = get_parameters(fname) %}
 #. {{fname.split("_")[0].capitalize()}} fractal
 
    ::
 
-     $ python fractals.py {{command}} --show
+     python fractal.py {{command}} --show
 
    .. image:: images/{{fname}}
 {% endwith %}{% endfor %}
+
+Parameters
+----------
+
+Examples above can also be done with a ``--output fractal.png`` parameter,
+which saves the example to a image file, while ``--show`` just shows the
+raster fractal image on the screen (both parameters can be used together).
+For more help, see::
+
+  python fractal.py --help
+
+Which shows all options available. To see all colormaps names available in
+Matplotlib, see the `colormaps on the scipy wiki`_ or type in a Python shell:
+
+.. code-block:: python
+
+  [m for m in __import__("pylab").cm.datad if not m.endswith("_r")]
+
+.. _`colormaps on the scipy wiki`:
+   http://wiki.scipy.org/Cookbook/Matplotlib/Show_colormaps
+
 ----
 
 By Danilo J. S. Bellini
