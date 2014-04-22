@@ -13,6 +13,7 @@ import pylab
 c = -.7102 + .2698j
 depth = 512
 width, height = 512, 512
+cmap = "cubehelix" # Color map
 
 # Algorithm
 def val(x, y):
@@ -36,7 +37,8 @@ img = pylab.array([
 ])
 
 # Plots and saves the desired fractal raster image
-pylab.imsave("julia_{width}x{height}_d={depth}_c={c}.png".format(**locals()), img, cmap="cubehelix")
-pylab.imshow(img, cmap="cubehelix")
+fname_template = "julia_{cmap}_{width}x{height}_d={depth}_c={c}=.png"
+pylab.imsave(fname_template.format(**locals()), img, cmap=cmap)
+pylab.imshow(img, cmap=cmap)
 pylab.show()
 

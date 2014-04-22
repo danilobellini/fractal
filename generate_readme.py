@@ -26,9 +26,9 @@ history), see the Wikipedia pages about the
 Examples
 --------
 {% for fname in sorted(listdir("images"))
-%}{% with width, height, depth, c = re_julia.match(fname).groups() %}
+%}{% with cmap, width, height, depth, c = re_julia.match(fname).groups() %}
 Julia Fractal for constant ``{{c}}`` and depth ``{{depth}}``, with
-{{width}}x{{height}} pixels
+{{width}}x{{height}} pixels (Colormap: {{cmap}})
 
 .. image:: images/{{fname}}
 {% endwith %}{% endfor %}
@@ -37,7 +37,7 @@ Julia Fractal for constant ``{{c}}`` and depth ``{{depth}}``, with
 template_globals = {
   "listdir": os.listdir,
   "sorted": sorted,
-  "re_julia": re.compile("julia_(.*?)x(.*?)_d=(.*?)_c=\(?(.*?)\)?.png"),
+  "re_julia": re.compile("julia_(.*?)_(.*?)x(.*?)_d=(.*?)_c=\(?(.*?)\)?.png"),
 }
 
 env = jinja2.Environment(extensions=["jinja2.ext.with_"])

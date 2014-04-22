@@ -19,26 +19,26 @@ Examples
 --------
 
 Julia Fractal for constant ``-0.7+0.27015j`` and depth ``512``, with
-512x512 pixels
+512x512 pixels (Colormap: cubehelix)
 
-.. image:: images/julia_512x512_d=512_c=(-0.7+0.27015j).png
+.. image:: images/julia_cubehelix_512x512_d=512_c=(-0.7+0.27015j).png
 
 Julia Fractal for constant ``-0.7102+0.2698j`` and depth ``512``, with
-512x512 pixels
+512x512 pixels (Colormap: cubehelix)
 
-.. image:: images/julia_512x512_d=512_c=(-0.7102+0.2698j).png
+.. image:: images/julia_cubehelix_512x512_d=512_c=(-0.7102+0.2698j).png
 
 Julia Fractal for constant ``-0.8+0.156j`` and depth ``512``, with
-512x512 pixels
+512x512 pixels (Colormap: cubehelix)
 
-.. image:: images/julia_512x512_d=512_c=(-0.8+0.156j).png
+.. image:: images/julia_cubehelix_512x512_d=512_c=(-0.8+0.156j).png
 
 Julia Fractal for constant ``-1.037+0.17j`` and depth ``512``, with
-512x512 pixels
+512x512 pixels (Colormap: cubehelix)
 
-.. image:: images/julia_512x512_d=512_c=(-1.037+0.17j).png
+.. image:: images/julia_cubehelix_512x512_d=512_c=(-1.037+0.17j).png
 
 Julia Fractal for constant ``-0.644`` and depth ``512``, with
-512x512 pixels
+512x512 pixels (Colormap: cubehelix)
 
-.. image:: images/julia_512x512_d=512_c=-0.644.png
+.. image:: images/julia_cubehelix_512x512_d=512_c=-0.644.png
