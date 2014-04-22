@@ -11,10 +11,13 @@ import pylab
 
 # Parameters
 c = -.7102 + .2698j
-depth = 512
-width, height = 512, 512
+depth = 256
+width, height = 500, 300
 cmap = "cubehelix" # Color map
-model = "mandelbrot"
+model = "julia"
+zoom = 1.7 # Ranges from [-zoom; +zoom] if center isn't changed
+cx, cy = 0, 0 # Center point
+
 
 # Algorithm
 def val(x, y, c):
@@ -29,19 +32,23 @@ def val(x, y, c):
   return result
 
 # Selects the model
+fname_details = "_{cmap}_{width}x{height}_d={depth}_cp={cx}x{cy}_z={zoom}.png"
 if model == "julia":
   func = lambda x, y: val(x, y, c)
-  fname_template = "julia_{cmap}_{width}x{height}_d={depth}_c={c}.png"
+  fname_template = "julia_c={c}" + fname_details
 elif model == "mandelbrot":
   func = lambda x, y: val(0, 0, x + y * 1j)
-  fname_template = "mandelbrot_{cmap}_{width}x{height}_d={depth}.png"
+  fname_template = "mandelbrot" + fname_details
 else:
   raise ValueError("Fractal not found")
 
-# Generates the intensities for each pixel mapped to the (-2; 2) range
+# Generates the intensities for each pixel
 side = max(width, height)
+deltax = (side - width) / 2 # Centralize
+deltay = (side - height) / 2
 img = pylab.array([
-  [func(2 * col / (width - 1) - 1, 2 * row / (height - 1) - 1)
+  [func(zoom * (2 * (col + deltax) / (side - 1) - 1) + cx,
+        zoom * (2 * (height - row + deltay) / (side - 1) - 1) + cy)
     for col in range(width)]
   for row in range(height)
 ])
