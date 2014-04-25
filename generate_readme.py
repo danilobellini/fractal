@@ -5,7 +5,8 @@
 # @author: Danilo de Jesus da Silva Bellini
 
 from __future__ import unicode_literals
-import os, re, jinja2, io
+import os, jinja2, io
+from test_fractal import show_parameters
 
 template_string = """..
   README.rst created with generate_readme.py, don't edit this file manually.
@@ -27,16 +28,15 @@ history), see the Wikipedia pages about the
 
 Examples
 --------
-{% for fname in sorted(listdir("images"))
-%}{% with command = get_parameters(fname) %}
+{% for fname in sorted(listdir("images")) %}
 #. {{fname.split("_")[0].capitalize()}} fractal
 
    ::
 
-     python fractal.py {{command}} --show
+     python fractal.py {{show_parameters(fname)}}
 
    .. image:: images/{{fname}}
-{% endwith %}{% endfor %}
+{% endfor %}
 
 Parameters
 ----------
@@ -66,26 +66,14 @@ By Danilo J. S. Bellini
 .. _`COPYING.txt`: COPYING.txt
 """
 
-re_complex = re.compile("(?:([+-]?\s*[0-9.]+))?\s*"
-                        "(?:([+-]\s*[0-9.]+)\s*)?(.*)")
-
-def get_parameters(fname):
-  def part_generator():
-    for part in fname.rsplit(".", 1)[0].split("_"):
-      if "=" in part:
-        yield "--" + part
-      else:
-        yield " ".join(filter(lambda x: x, re_complex.match(part).groups()))
-  return " ".join(part_generator())
-
-template_globals = {
+kwargs = {
   "listdir": os.listdir,
   "sorted": sorted,
-  "get_parameters": get_parameters,
+  "show_parameters": show_parameters,
 }
 
-env = jinja2.Environment(extensions=["jinja2.ext.with_"])
-template = env.from_string(template_string, globals=template_globals)
+template = jinja2.Template(template_string)
+readme_data = template.render(**kwargs)
 
 with io.open("README.rst", "w", encoding="utf-8", newline="\r\n") as readme:
-  readme.write(template.render())
+  readme.write(readme_data)
