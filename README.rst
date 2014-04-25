@@ -5,6 +5,9 @@
 Fractals in Python
 ==================
 
+.. image:: https://travis-ci.org/danilobellini/fractals.svg?branch=master
+  :target: https://travis-ci.org/danilobellini/fractals
+
 Repository with Python code that renders fractals, compatible with both Python
 2.7 and 3.2+, showing and saving files with Matplotlib.
 
