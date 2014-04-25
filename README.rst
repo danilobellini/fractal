@@ -1,5 +1,6 @@
 ..
   README.rst created with generate_readme.py, don't edit this file manually.
+  License is MIT, see COPYING.txt for more details.
 
 Fractals in Python
 ==================
@@ -129,4 +130,7 @@ Matplotlib, see the `colormaps on the scipy wiki`_ or type in a Python shell:
 
 ----
 
+License is MIT, see `COPYING.txt`_ for more details.
 By Danilo J. S. Bellini
+
+.. _`COPYING.txt`: COPYING.txt

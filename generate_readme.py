@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Created on Sun Apr 20 00:37:12 2014
+# License is MIT, see COPYING.txt for more details.
 # @author: Danilo de Jesus da Silva Bellini
 
 from __future__ import unicode_literals
@@ -8,6 +9,7 @@ import os, re, jinja2, io
 
 template_string = """..
   README.rst created with generate_readme.py, don't edit this file manually.
+  License is MIT, see COPYING.txt for more details.
 
 Fractals in Python
 ==================
@@ -58,7 +60,10 @@ Matplotlib, see the `colormaps on the scipy wiki`_ or type in a Python shell:
 
 ----
 
+License is MIT, see `COPYING.txt`_ for more details.
 By Danilo J. S. Bellini
+
+.. _`COPYING.txt`: COPYING.txt
 """
 
 re_complex = re.compile("(?:([+-]?\s*[0-9.]+))?\s*"

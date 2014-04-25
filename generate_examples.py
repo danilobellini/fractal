@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Created on Tue Apr 22 07:14:05 2014
+# License is MIT, see COPYING.txt for more details.
 # @author: Danilo de Jesus da Silva Bellini
 
 from fractal import Point, exec_command
