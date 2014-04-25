@@ -143,14 +143,17 @@ def img2output(img, cmap=DEFAULT_COLORMAP, output=None, show=False):
     pylab.show()
 
 
+def call_kw(func, kwargs):
+  """ Call func(**kwargs) but remove the possible unused extra keys before """
+  keys = inspect.getargspec(func).args
+  kwfiltered = {k: v for k, v in kwargs.items() if k in keys}
+  return func(**kwfiltered)
+
+
 def exec_command(kwargs):
   """ Fractal command from a dictionary of keyword arguments (from CLI) """
-  keys_gf = inspect.getargspec(generate_fractal).args
-  kwargs_gf = {k: v for k, v in kwargs.items() if k in keys_gf}
-  img = generate_fractal(**kwargs_gf)
-  keys_i2o = inspect.getargspec(img2output).args
-  kwargs_i2o = {k: v for k, v in kwargs.items() if k in keys_i2o}
-  img2output(img, **kwargs_i2o)
+  kwargs["img"] = call_kw(generate_fractal, kwargs)
+  call_kw(img2output, kwargs)
 
 
 if __name__ == "__main__":
