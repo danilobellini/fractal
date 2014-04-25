@@ -156,7 +156,11 @@ def exec_command(kwargs):
   call_kw(img2output, kwargs)
 
 
-if __name__ == "__main__":
+def cli_parse_args(args=None, namespace=None):
+  """
+  CLI (Command Line Interface) parsing based on ``ArgumentParser.parse_args``
+  from the ``argparse`` module.
+  """
   # CLI interface description
   parser = argparse.ArgumentParser(
     description=__doc__,
@@ -197,18 +201,20 @@ if __name__ == "__main__":
                       help="Shows the plot in the default Matplotlib backend")
 
   # Process arguments
-  args = parser.parse_args()
-  if args.model == "julia" and "c" not in args:
+  ns_parsed = parser.parse_args(args=args, namespace=namespace)
+  if ns_parsed.model == "julia" and "c" not in ns_parsed:
     parser.error("Missing Julia constant")
-  if args.model == "mandelbrot" and "c" in args:
+  if ns_parsed.model == "mandelbrot" and "c" in ns_parsed:
     parser.error("Mandelbrot has no constant")
-  if "output" not in args and "show" not in args:
+  if "output" not in ns_parsed and "show" not in ns_parsed:
     parser.error("Nothing to be done (no output file name nor --show)")
-  if "c" in args:
+  if "c" in ns_parsed:
     try:
-      args.c = complex("".join(args.c).replace("i", "j"))
+      ns_parsed.c = complex("".join(ns_parsed.c).replace("i", "j"))
     except ValueError as exc:
       parser.error(exc)
 
-  # Execute the given command
-  exec_command(vars(args))
+  return vars(ns_parsed)
+
+if __name__ == "__main__":
+  exec_command(cli_parse_args())
