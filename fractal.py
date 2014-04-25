@@ -7,7 +7,8 @@ Julia and Mandelbrot fractals image creation
 """
 
 from __future__ import division
-import pylab, argparse, collections, inspect
+import pylab, argparse, collections, inspect, functools
+from itertools import takewhile
 
 Point = collections.namedtuple("Point", ["x", "y"])
 
@@ -22,34 +23,103 @@ DEFAULT_CENTER = "0x0"
 DEFAULT_COLORMAP = "cubehelix"
 
 
+def repeater(f):
+  """
+  Returns a generator function that returns a repeated function composition
+  iterator (generator) for the function given, i.e., for a function input
+  ``f`` with one parameter ``n``, calling ``repeater(f)(n)`` yields the
+  values (one at a time)::
+
+     n, f(n), f(f(n)), f(f(f(n))), ...
+
+  Examples
+  --------
+
+  >>> func = repeater(lambda x: x ** 2 - 1)
+  >>> func
+  <function ...>
+  >>> gen = func(3)
+  >>> gen
+  <generator object ...>
+  >>> next(gen)
+  3
+  >>> next(gen) # 3 ** 2 - 1
+  8
+  >>> next(gen) # 8 ** 2 - 1
+  63
+  >>> next(gen) # 63 ** 2 - 1
+  3968
+
+  """
+  @functools.wraps(f)
+  def wrapper(n):
+    val = n
+    while True:
+      yield val
+      val = f(val)
+  return wrapper
+
+
+def amount(gen, limit=float("inf")):
+  """
+  Iterates through ``gen`` returning the amount of elements in it. The
+  iteration stops after at least ``limit`` elements had been iterated.
+
+  Examples
+  --------
+
+  >>> amount(x for x in "abc")
+  3
+  >>> amount((x for x in "abc"), 2)
+  2
+  >>> from itertools import count
+  >>> amount(count(), 5) # Endless, always return ceil(limit)
+  5
+  >>> amount(count(start=3, step=19), 18.2)
+  19
+  """
+  size = 0
+  for unused in gen:
+    size += 1
+    if size >= limit:
+      break
+  return size
+
+
+def in_circle(radius):
+  """ Returns ``abs(z) < radius`` boolean value function for a given ``z`` """
+  return lambda z: z.real ** 2 + z.imag ** 2 < radius ** 2
+
+
+def fractal_eta(z, func, limit, radius=2):
+  """
+  Fractal Escape Time Algorithm for pixel (x, y) at z = ``x + y * 1j``.
+  Returns the fractal value up to a ``limit`` iteration depth.
+  """
+  return amount(takewhile(in_circle(radius), repeater(func)(z)), limit)
+
+
+def cqp(c):
+  """ Complex quadratic polynomial, function used for Mandelbrot fractal """
+  return lambda z: z ** 2 + c
+
+
 def generate_fractal(model, c=None, size=pair_reader(int)(DEFAULT_SIZE),
                      depth=int(DEFAULT_DEPTH), zoom=float(DEFAULT_ZOOM),
                      center=pair_reader(float)(DEFAULT_CENTER)):
   """ Returns a 2D Numpy Array with the fractal value for each pixel """
-  width, height = size
-  cx, cy = center
-
-  # Algorithm
-  def val(x, y, c):
-    """
-    Gaston Julia Fractal value for pixel at coords [x, y].
-    """
-    result = 0
-    number = x + y * 1j
-    while result < depth and number.real ** 2 + number.imag ** 2 < 4:
-      number = number ** 2 + c
-      result += 1
-    return result
-
   # Selects the model
+  to_z = lambda x, y: x + y * 1j
   if model == "julia":
-    func = lambda x, y: val(x, y, c)
+    func = lambda x, y: fractal_eta(to_z(x, y), cqp(c), depth)
   elif model == "mandelbrot":
-    func = lambda x, y: val(0, 0, x + y * 1j)
+    func = lambda x, y: fractal_eta(0, cqp(to_z(x, y)), depth)
   else:
     raise ValueError("Fractal not found")
 
   # Generates the intensities for each pixel
+  width, height = size
+  cx, cy = center
   side = max(width, height)
   deltax = (side - width) / 2 # Centralize
   deltay = (side - height) / 2
