@@ -85,7 +85,8 @@ kwargs_list = [
 ]
 
 # Creates all examples
-for kwargs in kwargs_list:
-  kwargs["output"] = "images/{}.png".format(filename(kwargs))
-  #kwargs["show"] = True
-  exec_command(kwargs)
+if __name__ == "__main__":
+  for kwargs in kwargs_list:
+    kwargs["output"] = "images/{}.png".format(filename(kwargs))
+    #kwargs["show"] = True
+    exec_command(kwargs)

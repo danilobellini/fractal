@@ -38,7 +38,7 @@ def test_file_image(fname):
   mem = BytesIO()
   fractal_data = call_kw(generate_fractal, kwargs)
   imsave(mem, fractal_data, cmap=kwargs["cmap"], format=ext)
-  mem.seek(0) # Return stream psition back for reading
+  mem.seek(0) # Return stream position back for reading
 
   # Comparison pixel-by-pixel
   img_file = imread("images/" + fname)

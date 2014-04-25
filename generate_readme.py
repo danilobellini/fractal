@@ -5,7 +5,7 @@
 # @author: Danilo de Jesus da Silva Bellini
 
 from __future__ import unicode_literals
-import os, jinja2, io
+import os, io
 from test_fractal import show_parameters
 
 template_string = """..
@@ -72,8 +72,10 @@ kwargs = {
   "show_parameters": show_parameters,
 }
 
-template = jinja2.Template(template_string)
-readme_data = template.render(**kwargs)
+if __name__ == "__main__":
+  import jinja2
+  template = jinja2.Template(template_string)
+  readme_data = template.render(**kwargs)
 
-with io.open("README.rst", "w", encoding="utf-8", newline="\r\n") as readme:
-  readme.write(readme_data)
+  with io.open("README.rst", "w", encoding="utf-8", newline="\r\n") as readme:
+    readme.write(readme_data)
