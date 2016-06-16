@@ -7,9 +7,11 @@
 Julia and Mandelbrot fractals image creation
 """
 
-from __future__ import division
+from __future__ import division, print_function
 import pylab, argparse, collections, inspect, functools
 from itertools import takewhile
+import time
+import multiprocessing
 
 Point = collections.namedtuple("Point", ["x", "y"])
 
@@ -104,17 +106,26 @@ def cqp(c):
   """ Complex quadratic polynomial, function used for Mandelbrot fractal """
   return lambda z: z ** 2 + c
 
+def to_z(x, y):
+  return x + y * 1j
+
+# Define multiprocssing compatible functions for model workers
+#  multiprocssing does not mix well with lambda functions
+def worker_julia(x, y, depth, c):
+  return fractal_eta(to_z(x, y), cqp(c), depth)
+  
+def worker_mandelbrot(x, y, depth, c):
+  return fractal_eta(0, cqp(to_z(x, y)), depth)
 
 def generate_fractal(model, c=None, size=pair_reader(int)(DEFAULT_SIZE),
                      depth=int(DEFAULT_DEPTH), zoom=float(DEFAULT_ZOOM),
                      center=pair_reader(float)(DEFAULT_CENTER)):
   """ Returns a 2D Numpy Array with the fractal value for each pixel """
   # Selects the model
-  to_z = lambda x, y: x + y * 1j
   if model == "julia":
-    func = lambda x, y: fractal_eta(to_z(x, y), cqp(c), depth)
+    func = worker_julia
   elif model == "mandelbrot":
-    func = lambda x, y: fractal_eta(0, cqp(to_z(x, y)), depth)
+    func = worker_mandelbrot
   else:
     raise ValueError("Fractal not found")
 
@@ -124,15 +135,42 @@ def generate_fractal(model, c=None, size=pair_reader(int)(DEFAULT_SIZE),
   side = max(width, height)
   deltax = (side - width) / 2 # Centralize
   deltay = (side - height) / 2
-  img = pylab.array([
-    [func((2 * (col + deltax) / (side - 1) - 1) / zoom + cx,
-          (2 * (height - row + deltay) / (side - 1) - 1) / zoom + cy)
-      for col in range(width)]
-    for row in range(height)
-  ])
+  
+  # Start a timer
+  start = time.time()
 
+  # Create a pool of workers
+  num_procs = multiprocessing.cpu_count()
+  print('CPU Count:', num_procs)
+  pool = multiprocessing.Pool(num_procs)
+  procs = []
+
+  # Fill our image with all zeros
+  img = pylab.zeros((height, width))
+
+  # Slice the image into rows
+  for row in range(height):
+    args = [(width, height, side, deltax, deltay, cx, cy, zoom, row, func, depth, c)]
+    p = pool.apply_async(generate_process, args)
+    procs.append(p)
+
+  # Collect results from worker procs
+  for row in range(height):
+    img[row, :] = procs[row].get()
+
+  # Print the timer
+  print('Time taken:', time.time()-start)
   return img
 
+def generate_process(args): 
+  # Parallel Process enabling shared workload
+  (width, height, side, deltax, deltay, cx, cy, zoom, row, func, depth, c) = args
+  img_row = pylab.zeros(width)
+  for col in range(width):
+    img_row[col] = func((2 * (col + deltax) / (side - 1) - 1) / zoom + cx,
+    (2 * (height - row + deltay) / (side - 1) - 1) / zoom + cy,
+    depth, c)
+  return img_row
 
 def img2output(img, cmap=DEFAULT_COLORMAP, output=None, show=False):
   """ Plots and saves the desired fractal raster image """
