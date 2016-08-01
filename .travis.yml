@@ -22,10 +22,12 @@ addons:
     - liblapack-dev
     - gfortran
 
-before_install: PY=$(python -V 2>&1 | sed 's/[^0-9]//g;s/.//3g')
+before_install:
+- PY=$(python -V 2>&1 | sed 's/[^0-9]//g;s/.//3g')
+- test $PY == 32 && TOX='virtualenv<14 tox' || TOX=tox
 
 install:
-- pip install tox
+- pip install $TOX
 - tox -e py$PY --notest
 
 script: tox -e py$PY
