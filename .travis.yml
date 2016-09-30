@@ -13,6 +13,7 @@ python:
 matrix:
   allow_failures:
   - python: nightly
+  - python: 3.2
 
 addons:
   apt:
@@ -30,4 +31,4 @@ install:
 - pip install $TOX
 - tox -e py$PY --notest
 
-script: tox -e py$PY
+script: tox -e py$PY -vv -- -vs
