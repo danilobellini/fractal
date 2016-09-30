@@ -150,9 +150,9 @@ def generate_fractal(model, c=None, size=pair_reader(int)(DEFAULT_SIZE),
 
   # Slice the image into rows
   for row in range(height):
-    args = [(width, height, side, deltax, deltay, cx, cy, zoom, row, func, depth, c)]
-    p = pool.apply_async(generate_process, args)
-    procs.append(p)
+    args = (width, height, cx, cy, side, deltax, deltay,
+            row, zoom, func, depth, c)
+    procs.append(pool.apply_async(generate_row, args))
 
   # Collect results from worker procs
   for row in range(height):
@@ -162,15 +162,17 @@ def generate_fractal(model, c=None, size=pair_reader(int)(DEFAULT_SIZE),
   print('Time taken:', time.time()-start)
   return img
 
-def generate_process(args): 
-  # Parallel Process enabling shared workload
-  (width, height, side, deltax, deltay, cx, cy, zoom, row, func, depth, c) = args
-  img_row = pylab.zeros(width)
-  for col in range(width):
-    img_row[col] = func((2 * (col + deltax) / (side - 1) - 1) / zoom + cx,
-    (2 * (height - row + deltay) / (side - 1) - 1) / zoom + cy,
-    depth, c)
-  return img_row
+
+def generate_row(width, height, cx, cy, side, deltax, deltay,
+                 row, zoom, func, depth, c):
+  """
+  Generate a single row of fractal values, enabling shared workload.
+  """
+  return [func((2 * (col + deltax) / (side - 1) - 1) / zoom + cx,
+               (2 * (height - row + deltay) / (side - 1) - 1) / zoom + cy,
+               depth, c)
+          for col in range(width)]
+
 
 def img2output(img, cmap=DEFAULT_COLORMAP, output=None, show=False):
   """ Plots and saves the desired fractal raster image """
