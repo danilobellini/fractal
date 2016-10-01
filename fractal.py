@@ -120,8 +120,9 @@ def worker_mandelbrot(x, y, depth, c):
 def generate_fractal(model, c=None, size=pair_reader(int)(DEFAULT_SIZE),
                      depth=int(DEFAULT_DEPTH), zoom=float(DEFAULT_ZOOM),
                      center=pair_reader(float)(DEFAULT_CENTER)):
-  """ Returns a 2D Numpy Array with the fractal value for each pixel """
-  # Selects the model
+  """
+  2D Numpy Array with the fractal value for each pixel coordinate.
+  """
   if model == "julia":
     func = worker_julia
   elif model == "mandelbrot":
@@ -129,37 +130,27 @@ def generate_fractal(model, c=None, size=pair_reader(int)(DEFAULT_SIZE),
   else:
     raise ValueError("Fractal not found")
 
-  # Generates the intensities for each pixel
   width, height = size
   cx, cy = center
   side = max(width, height)
   deltax = (side - width) / 2 # Centralize
   deltay = (side - height) / 2
-  
-  # Start a timer
-  start = time.time()
 
-  # Create a pool of workers
   num_procs = multiprocessing.cpu_count()
   print('CPU Count:', num_procs)
+  start = time.time()
+
+  # Create a pool of workers, one for each row
   pool = multiprocessing.Pool(num_procs)
-  procs = []
+  procs = [pool.apply_async(generate_row,
+                            [width, height, cx, cy, side, deltax, deltay,
+                             row, zoom, func, depth, c])
+           for row in range(height)]
 
-  # Fill our image with all zeros
-  img = pylab.zeros((height, width))
+  # Generates the intensities for each pixel
+  img = pylab.array([row_proc.get() for row_proc in procs])
 
-  # Slice the image into rows
-  for row in range(height):
-    args = (width, height, cx, cy, side, deltax, deltay,
-            row, zoom, func, depth, c)
-    procs.append(pool.apply_async(generate_row, args))
-
-  # Collect results from worker procs
-  for row in range(height):
-    img[row, :] = procs[row].get()
-
-  # Print the timer
-  print('Time taken:', time.time()-start)
+  print('Time taken:', time.time() - start)
   return img
 
 
