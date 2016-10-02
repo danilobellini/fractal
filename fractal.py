@@ -106,16 +106,18 @@ def cqp(c):
   """ Complex quadratic polynomial, function used for Mandelbrot fractal """
   return lambda z: z ** 2 + c
 
-def to_z(x, y):
-  return x + y * 1j
 
-# Define multiprocssing compatible functions for model workers
-#  multiprocssing does not mix well with lambda functions
-def worker_julia(x, y, depth, c):
-  return fractal_eta(to_z(x, y), cqp(c), depth)
-  
-def worker_mandelbrot(x, y, depth, c):
-  return fractal_eta(0, cqp(to_z(x, y)), depth)
+def get_model(model, depth, c):
+  """
+  Returns the fractal model function for a single pixel.
+  """
+  if model == "julia":
+    func = cqp(c)
+    return lambda x, y: fractal_eta(x + y * 1j, func, depth)
+  if model == "mandelbrot":
+    return lambda x, y: fractal_eta(0, cqp(x + y * 1j), depth)
+  raise ValueError("Fractal not found")
+
 
 def generate_fractal(model, c=None, size=pair_reader(int)(DEFAULT_SIZE),
                      depth=int(DEFAULT_DEPTH), zoom=float(DEFAULT_ZOOM),
@@ -123,19 +125,6 @@ def generate_fractal(model, c=None, size=pair_reader(int)(DEFAULT_SIZE),
   """
   2D Numpy Array with the fractal value for each pixel coordinate.
   """
-  if model == "julia":
-    func = worker_julia
-  elif model == "mandelbrot":
-    func = worker_mandelbrot
-  else:
-    raise ValueError("Fractal not found")
-
-  width, height = size
-  cx, cy = center
-  side = max(width, height)
-  deltax = (side - width) / 2 # Centralize
-  deltay = (side - height) / 2
-
   num_procs = multiprocessing.cpu_count()
   print('CPU Count:', num_procs)
   start = time.time()
@@ -143,9 +132,8 @@ def generate_fractal(model, c=None, size=pair_reader(int)(DEFAULT_SIZE),
   # Create a pool of workers, one for each row
   pool = multiprocessing.Pool(num_procs)
   procs = [pool.apply_async(generate_row,
-                            [width, height, cx, cy, side, deltax, deltay,
-                             row, zoom, func, depth, c])
-           for row in range(height)]
+                            [model, c, size, depth, zoom, center, row])
+           for row in range(size[1])]
 
   # Generates the intensities for each pixel
   img = pylab.array([row_proc.get() for row_proc in procs])
@@ -154,14 +142,19 @@ def generate_fractal(model, c=None, size=pair_reader(int)(DEFAULT_SIZE),
   return img
 
 
-def generate_row(width, height, cx, cy, side, deltax, deltay,
-                 row, zoom, func, depth, c):
+def generate_row(model, c, size, depth, zoom, center, row):
   """
   Generate a single row of fractal values, enabling shared workload.
   """
-  return [func((2 * (col + deltax) / (side - 1) - 1) / zoom + cx,
-               (2 * (height - row + deltay) / (side - 1) - 1) / zoom + cy,
-               depth, c)
+  func = get_model(model, depth, c)
+  width, height = size
+  cx, cy = center
+  side = max(width, height)
+  sidem1 = side - 1
+  deltax = (side - width) / 2 # Centralize
+  deltay = (side - height) / 2
+  y = (2 * (height - row + deltay) / sidem1 - 1) / zoom + cy
+  return [func((2 * (col + deltax) / sidem1 - 1) / zoom + cx, y)
           for col in range(width)]
 
 
