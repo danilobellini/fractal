@@ -36,7 +36,7 @@ Examples
 
    ::
 
-     python fractal.py {{show_parameters(fname)}}
+     python -m fractal {{show_parameters(fname)}}
 
    .. image:: images/{{fname}}
 {% endfor %}
@@ -49,7 +49,7 @@ which saves the example to a image file, while ``--show`` just shows the
 raster fractal image on the screen (both parameters can be used together).
 For more help, see::
 
-  python fractal.py --help
+  python -m fractal --help
 
 Which shows all options available. To see all colormaps names available in
 Matplotlib, see the `colormaps on the scipy wiki`_ or type in a Python shell:
