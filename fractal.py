@@ -170,7 +170,7 @@ def img2output(img, cmap=DEFAULT_COLORMAP, output=None, show=False):
 def call_kw(func, kwargs):
   """ Call func(**kwargs) but remove the possible unused extra keys before """
   keys = inspect.getargspec(func).args
-  kwfiltered = {k: v for k, v in kwargs.items() if k in keys}
+  kwfiltered = dict((k, v) for k, v in kwargs.items() if k in keys)
   return func(**kwfiltered)
 
 

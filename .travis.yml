@@ -9,11 +9,13 @@ python:
 - 3.3
 - 3.2
 - 2.7
+- 2.6
 
 matrix:
   allow_failures:
   - python: nightly
   - python: 3.2
+  - python: 2.6
 
 addons:
   apt:
