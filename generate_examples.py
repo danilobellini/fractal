@@ -5,7 +5,10 @@
 # @author: Danilo de Jesus da Silva Bellini
 
 from fractal import Point, exec_command
-from collections import OrderedDict
+try:
+  from collections import OrderedDict
+except ImportError: # Python 2.6
+  from ordereddict import OrderedDict
 
 # String formatting functions
 Point.__str__ = lambda self: "x".join(map(str, self))
@@ -51,6 +54,12 @@ kwargs_list = [
                ("size", Point(400, 230)),
                ("depth", 50),
                ("zoom", .65),
+  ]),
+  OrderedDict([("model", "julia"),
+               ("c", -.77777-.25j),
+               ("size", Point(527, 331)),
+               ("depth", 200),
+               ("zoom", .7),
   ]),
   OrderedDict([("model", "mandelbrot"),
                ("size", Point(500, 500)),

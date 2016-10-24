@@ -50,6 +50,14 @@ Examples
 
    ::
 
+     python -m fractal julia -0.77777 -0.25 j --size=527x331 --depth=200 --zoom=0.7 --show
+
+   .. image:: images/julia_-0.77777-0.25j_size=527x331_depth=200_zoom=0.7.png
+
+#. Julia fractal
+
+   ::
+
      python -m fractal julia -0.8 +0.156 j --size=400x230 --depth=50 --zoom=0.65 --show
 
    .. image:: images/julia_-0.8+0.156j_size=400x230_depth=50_zoom=0.65.png
