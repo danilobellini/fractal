@@ -1,20 +1,24 @@
 #!/usr/bin/env python
-import os, setuptools
+import os, setuptools, re
+
+url = "https://github.com/danilobellini/fractal"
 
 metadata = {
-  "name": "fractals",
+  "name": "fractal",
   "version": "0.1.0.dev",
   "author": "Danilo J. S. Bellini",
-  "author_email": "danilo.bellini.gmail.com",
   "description": "Fractals in Python",
-  "url": "http://github.com/danilobellini/fractals",
+  "author_email": "danilo.bellini@gmail.com",
+  "url": url,
   "license": "MIT",
   "py_modules": ["fractal"],
   "install_requires": ["matplotlib"],
 }
 
 with open(os.path.join(os.path.dirname(__file__), "README.rst")) as f:
-    metadata["long_description"] = f.read()
+  metadata["long_description"] = re.sub(r"(\.\. (?:image|_\S+):+\s*)([^: ]+)",
+                                        r"\1{0}/raw/master/\2".format(url),
+                                        f.read())
 
 metadata["classifiers"] = """
 Development Status :: 3 - Alpha
