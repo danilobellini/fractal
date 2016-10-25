@@ -4,6 +4,7 @@ sudo: false
 
 python:
 - nightly
+- 3.6-dev
 - 3.5
 - 3.4
 - 3.3
@@ -14,6 +15,7 @@ python:
 matrix:
   allow_failures:
   - python: nightly
+  - python: 3.6-dev
   - python: 3.2
   - python: 2.6
 
